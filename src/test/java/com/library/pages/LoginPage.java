@@ -1,5 +1,6 @@
 package com.library.pages;
 
+import com.library.utility.BrowserUtil;
 import com.library.utility.ConfigurationReader;
 import com.library.utility.Driver;
 import org.openqa.selenium.WebElement;
@@ -33,6 +34,9 @@ public class LoginPage {
         emailBox.sendKeys(username);
         passwordBox.sendKeys(password);
         loginButton.click();
+
+        // Explicit Wait
+        BrowserUtil.waitFor(3);
 
     }
 

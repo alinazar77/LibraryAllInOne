@@ -1,5 +1,6 @@
 package com.library.pages;
 
+import com.library.utility.BrowserUtil;
 import com.library.utility.Driver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -34,5 +35,6 @@ public abstract  class BasePage {
 
     public void navigateModule(String moduleName){
         Driver.getDriver().findElement(By.xpath("//span[@class='title'][.='"+moduleName+"']")).click();
+        BrowserUtil.waitFor(3);
     }
 }
