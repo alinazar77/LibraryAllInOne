@@ -8,6 +8,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
@@ -17,7 +18,9 @@ import org.apache.logging.log4j.Logger;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class APIStepDefs {
     public Logger LOG = LogManager.getLogger();
@@ -91,25 +94,82 @@ public class APIStepDefs {
      * US02
      */
     String expectedID;
+
     @Given("Path param {string} is {string}")
     public void path_param_is(String pathParam, String value) {
-        givenPart.pathParam(pathParam,value);
-        expectedID=value;
+        givenPart.pathParam(pathParam, value);
+        expectedID = value;
     }
+
     @Then("{string} field should be same with path param")
     public void field_should_be_same_with_path_param(String path) {
         String actualID = jp.getString(path);
-        Assert.assertEquals(expectedID,actualID);
+        Assert.assertEquals(expectedID, actualID);
     }
+
     @Then("following fields should not be null")
     public void following_fields_should_not_be_null(List<String> allPaths) {
 
         for (String eachPath : allPaths) {
-            thenPart.body(eachPath,Matchers.notNullValue());
+            thenPart.body(eachPath, Matchers.notNullValue());
         }
 
 
     }
 
+    /**
+     * US03
+     */
+
+    @Given("Request Content Type header is {string}")
+    public void request_content_type_header_is(String contentType) {
+        givenPart.contentType(contentType);
+    }
+
+    @Given("I create a random {string} as request body")
+    public void i_create_a_random_as_request_body(String dataType) {
+        Map<String, Object> randomData=new HashMap<>();
+
+        switch (dataType) {
+            case "book":
+                randomData= LibraryAPI_Util.getRandomBookMap();
+                break;
+            case "user":
+                randomData = LibraryAPI_Util.getRandomUserMap();
+                break;
+            default:
+                LOG.error("Invalid Data Type " + dataType);
+                throw new RuntimeException("Invalid Data Type " + dataType);
+        }
+        LOG.info(dataType+" body is "+randomData);
+        givenPart.formParams(randomData);
+
+    }
+
+    @When("I send POST request to {string} endpoint")
+    public void i_send_post_request_to_endpoint(String endpoint) {
+         response = givenPart.when().post(endpoint);
+         thenPart = response.then();
+         jp=response.jsonPath();
+
+         LOG.info("Response is "+response.prettyPrint());
+    }
+
+    @Then("the field value for {string} path should be equal to {string}")
+    public void the_field_value_for_path_should_be_equal_to(String path, String expectedMessage) {
+        String actualMessage = jp.getString(path);
+        LOG.info("Actual Message is "+actualMessage);
+
+        Assert.assertEquals(expectedMessage,actualMessage);
+    }
+
+    @Then("{string} field should not be null")
+    public void field_should_not_be_null(String path) {
+        // OPT 1
+        thenPart.body(path,Matchers.notNullValue());
+
+        // OPT 2
+        Assert.assertNotNull(jp.getString(path));
+    }
 
 }
