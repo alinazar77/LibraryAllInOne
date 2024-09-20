@@ -61,4 +61,10 @@ public class Hooks {
         LOG.info("Base URI is "+RestAssured.baseURI);
     }
 
+    @After()
+    public void endScenario(Scenario scenario){
+        // LOG.info("Test Result {} : {} ",scenario.getName(),scenario.getStatus());
+        LOG.info("Test Result for "+scenario.getName()+" "+scenario.getStatus());
+    }
+
 }

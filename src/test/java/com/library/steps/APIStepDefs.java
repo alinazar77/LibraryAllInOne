@@ -37,13 +37,17 @@ public class APIStepDefs {
     @Given("Accept header is {string}")
     public void accept_header_is(String acceptHeader) {
         givenPart.accept(acceptHeader);
+
     }
 
     @When("I send GET request to {string} endpoint")
     public void i_send_get_request_to_endpoint(String endpoint) {
         LOG.info("Endpoint ---> " + endpoint);
+
         response = givenPart.when().get(endpoint);
+
         thenPart = response.then();
+
         jp = response.jsonPath();
 
         LOG.info("Response --> " + response.prettyPrint());
@@ -81,6 +85,30 @@ public class APIStepDefs {
         for (String eachData : allData) {
             Assert.assertNotNull(eachData);
         }
+    }
+
+    /**
+     * US02
+     */
+    String expectedID;
+    @Given("Path param {string} is {string}")
+    public void path_param_is(String pathParam, String value) {
+        givenPart.pathParam(pathParam,value);
+        expectedID=value;
+    }
+    @Then("{string} field should be same with path param")
+    public void field_should_be_same_with_path_param(String path) {
+        String actualID = jp.getString(path);
+        Assert.assertEquals(expectedID,actualID);
+    }
+    @Then("following fields should not be null")
+    public void following_fields_should_not_be_null(List<String> allPaths) {
+
+        for (String eachPath : allPaths) {
+            thenPart.body(eachPath,Matchers.notNullValue());
+        }
+
+
     }
 
 
